@@ -4,10 +4,12 @@ This folder contains artifacts for the Couchbase Cloud Launcher offer.  This sho
 
 # Build VM Image
 
-First off, we need to decide what OS image to use.  We're using the latest Ubuntu 14.04.  You can figure out what that is by running:
+First off, open up a cloud shell.  While you could do this on your local machine with gcloud, it's way easier to just use a cloud shell.
+
+Now we need to decide what OS image to use.  We're using the latest Ubuntu 14.04.  You can figure out what that is by running:
 
     gcloud compute images list
-    IMAGE_VERSION=v20180110
+    IMAGE_VERSION=v20180522
     IMAGE_NAME=ubuntu-1404-trusty-${IMAGE_VERSION}
 
 Next, create an image for each license:
@@ -48,9 +50,16 @@ Now we're going to delete all four VMs.  We'll be left with their boot disks.  T
 
 We were previously piping yes, but that doesn't seem to be working currently, so you'll have to type "y" a few times.
 
-Now you need to attach the license ID to each image.  That process is described [here](https://cloud.google.com/launcher/docs/partners/technical-components#create_the_base_solution_vm).  Note that you do not need to mount the disks and delete files since none were created.  Running this command should be sufficient:
+Now you need to attach the license ID to each image.  That process is described [here](https://cloud.google.com/launcher/docs/partners/technical-components#create_the_base_solution_vm).  
+Note that you do not need to mount the disks and delete files since none were created.  To start, install the partner utilities:
 
-    cd ~/google
+    mkdir partner-utils
+    cd partner-utils
+    curl -O https://storage.googleapis.com/c2d-install-scripts/partner-utils.tar.gz
+    tar -xzvf partner-utils.tar.gz
+    sudo python setup.py install
+
+Now apply the license:
 
     for LICENSE in "${LICENSES[@]}"
     do
@@ -76,7 +85,7 @@ You'll upload archive-byol.zip and archive-hourly-pricing.zip in the portal at a
 
 # Create Solutions
 
-Couchbase has two solutions in Cloud Launcher.  Those can be edited in the Partner Portal [here](https://console.cloud.google.com/partner/solutions?project=couchbase-public&authuser=1).  The copy for the solutions is as follows:
+Couchbase has two solutions in Cloud Launcher.  Those can be edited in the Partner Portal [here](https://console.cloud.google.com/partner/solutions?project=couchbase-public).  The copy for the solutions is as follows:
 
 ## 1 - Solution Metadata
 
@@ -114,8 +123,11 @@ This template includes a license for Couchbase Enterprise Edition and <a href="h
 
 This template is for bring your own license (BYOL) users.  To purchase a license go <a href="https://www.couchbase.com/subscriptions-and-support">here</a>.
 
+### More solution info
+https://www.couchbase.com/partners/google/
+
 ### Version
-Server and Sync Gateway
+Couchbase EE
 
 ### Category ID
 * Big Data
@@ -129,9 +141,21 @@ Couchbase
 ### Company Description
 Couchbase provides the world’s most complete, scalable, and highest performing NoSQL database. We engineered the product to meet the most demanding enterprise and big data requirements for distributed database performance and scalability.
 
-## 4 - Test Drive (Optional)
+## 4 - Test Drive
+To update the Test Drive login to [Orbitera](https://www.orbitera.com/).  You'll then want to build the template under [testdrive](../testdrive).  The manual is [here](https://github.com/couchbase-partners/test-drive).
 
 ## 5 - Documentation & Support
+
+### Tutorials and Documentation
+
+#### Type
+Documentation
+
+#### URL
+https://developer.couchbase.com/documentation/server/current/cloud/couchbase-gcp-cloud-launcher.html
+
+#### Description
+Deploying Couchbase on Google Cloud Launcher
 
 ### Support description
 With Couchbase customers all around the world, our support team provides global coverage. So wherever you’re located, we’ve got you covered. For customers requiring round-the-clock support, 24x7x365 service level agreements are available.
@@ -140,7 +164,7 @@ With Couchbase customers all around the world, our support team provides global 
 http://support.couchbase.com/
 
 ### EULA URL
-https://www.couchbase.com/docs/common/terms-of-service.html
+https://www.couchbase.com/ESLA02152018
 
 ## 6 - Deployment Package
 

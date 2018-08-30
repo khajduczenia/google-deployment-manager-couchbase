@@ -2,7 +2,7 @@ import naming
 
 URL_BASE = 'https://www.googleapis.com/compute/v1/projects/'
 
-WAITER_TIMEOUT = '300s'
+WAITER_TIMEOUT = '1100s'
 
 def GenerateConfig(context):
     runtimeconfigName = context.properties['runtimeconfigName']
@@ -82,7 +82,11 @@ def GenerateExternalIpReadActionConfig(context, runtimeconfigName, externalIpCre
 
 def GenerateInstanceTemplateConfig(context, runtimeconfigName):
     license = context.properties['license']
-    useImageFamily = context.properties['useImageFamily']
+
+    # As I dropped the schema files to fix the disk issue this broke.  Need to dig in more here to figure out what's going on.
+    # useImageFamily = context.properties['useImageFamily']
+    useImageFamily = False
+
     if 'syncGateway' in context.properties['services']:
         sourceImage = _SyncGatewayImageUrl(license, useImageFamily)
     else:
@@ -112,10 +116,10 @@ def GenerateInstanceTemplateConfig(context, runtimeconfigName):
                     'boot': True,
                     'autoDelete': True,
                     'initializeParams': {
-                        'sourceImage': sourceImage
-                    },
-                    'diskType': 'pd-ssd',
-                    'diskSizeGb': context.properties['diskSize']
+                        'sourceImage': sourceImage,
+                        'diskType': 'pd-ssd',
+                        'diskSizeGb': context.properties['diskSize']
+                    }
                 }],
                 'metadata': {
                     'items': [
@@ -202,6 +206,15 @@ def GenerateStartupScript(context):
     script = '#!/usr/bin/env bash\n\n'
     script += context.imports['startupCommon.sh']
 
+    # GCP is now running the startup script on reboot.  This is a workaround.
+    script += 'if [ -d "/opt/couchbase" ]; then\n'
+    script += '  echo "Couchbase Server is already installed.  Exiting"\n'
+    script += '  exit\n'
+    script += 'elif [ -d "/home/sync_gateway" ]; then\n'
+    script += '  echo "Sync Gateway is already installed.  Exiting."\n'
+    script += '  exit\n'
+    script += 'fi\n\n'
+
     services=context.properties['services']
     if 'data' in services or 'query' in services or 'index' in services or 'fts' in services:
         script += 'CLUSTER="' + context.properties['cluster'] + '"\n'
@@ -230,13 +243,13 @@ def _SyncGatewayImageUrl(license, useFamily):
     if useFamily:
         return URL_BASE + 'couchbase-public/global/images/family/couchbase-sync-gateway-ee-' + license
     else:
-        return URL_BASE + 'couchbase-public/global/images/couchbase-sync-gateway-ee-' + license + '-v20180110'
+        return URL_BASE + 'couchbase-public/global/images/couchbase-sync-gateway-ee-' + license + '-v20180722'
 
 def _ServerImageUrl(license, useFamily):
     if (useFamily):
         return URL_BASE + 'couchbase-public/global/images/family/couchbase-server-ee-' + license
     else:
-        return URL_BASE + 'couchbase-public/global/images/couchbase-server-ee-' + license + '-v20180110'
+        return URL_BASE + 'couchbase-public/global/images/couchbase-server-ee-' + license + '-v20180722'
 
 def _WaiterSuccessPath(clusterName, groupName):
     return 'status/clusters/%s/groups/%s/success' % (clusterName, groupName)

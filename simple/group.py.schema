@@ -26,16 +26,19 @@ properties:
     description: Type of Couchbase license to be supported by the deployment.
   serverVersion:
     type: string
-    default: 5.0.1
+    default: 5.5.0
     enum:
+      - 5.5.0
+      - 5.1.0
       - 5.0.1
       - 4.6.4
       - 4.6.3
       - 4.6.2
   syncGatewayVersion:
     type: string
-    default: 1.5.1
+    default: 2.0.0
     enum:
+      - 2.0.0
       - 1.5.1
 
   couchbaseUsername:
@@ -76,3 +79,4 @@ properties:
   services:
     type: array
     description: A list of Couchbase services to be included in the instance group.
+

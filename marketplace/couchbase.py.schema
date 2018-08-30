@@ -33,7 +33,7 @@ properties:
     default: false
   europe-west1:
     type: boolean
-    default: true
+    default: false
   europe-west2:
     type: boolean
     default: false
@@ -45,7 +45,7 @@ properties:
     default: false
   asia-east1:
     type: boolean
-    default: true
+    default: false
   asia-northeast1:
     type: boolean
     default: false
@@ -72,15 +72,17 @@ properties:
       zoneProperty: defaultZone
   serverDiskSize:
     type: integer
-    default: 10
+    minimum: 20
+    default: 20
   serverVersion:
     type: string
-    default: 5.0.1
+    default: 5.5.0
     enum:
+      - 5.5.0
+      - 5.1.1
+      - 5.1.0
       - 5.0.1
-      - 4.6.4
-      - 4.6.3
-      - 4.6.2
+      - 4.6.5
 
   syncGatewayNodeCount:
     type: integer
@@ -95,12 +97,13 @@ properties:
       zoneProperty: defaultZone
   syncGatewayDiskSize:
     type: integer
-    default: 10
+    minimum: 20
+    default: 20
   syncGatewayVersion:
     type: string
-    default: 1.5.1
+    default: 2.0.0
     enum:
-      - 1.5.1
+      - 2.0.0
 
 outputs:
   couchbaseUsername:
